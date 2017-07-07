@@ -44,7 +44,26 @@ class GrpcServer extends grpc.Server {
             let loaded = {};
             if (!Array.isArray(protos)) protos = [protos];
             protos.forEach(file => {
-                loadServicesMap(grpc.load({ file: file, root: root}, "proto"), loaded);
+                let proto = null;
+                try {
+                    if (!fs.existsSync(path.resolve(root, file))) {
+                        throw new Error("File not found: " + path.resolve(root, file));
+                    }
+                    proto = grpc.load({file: file, root: root}, "proto");
+                }
+                catch (ex) {
+                    let error = new Error(`Unable to load "${file}", reason: ${ex.message}`);
+                    error.stack = ex.stack;
+                    throw error;
+                }
+                try {
+                    loadServicesMap(proto, loaded);
+                }
+                catch (ex) {
+                    let error = Error(`Unable to locate services in "${file}", reason: ${ex.message}`);
+                    error.stack = ex.stack;
+                    throw error;
+                }
             });
 
             let names = Object.keys(implementationMap);
@@ -93,7 +112,7 @@ function loadServicesMap(obj, output) {
  */
 function isGrpcService(service) {
     return !!(service && service.service && service.prototype && service.prototype.constructor &&
-                service.prototype.constructor.name === "ServiceClient");
+    service.prototype.constructor.name === "ServiceClient");
 }
 
 /**
