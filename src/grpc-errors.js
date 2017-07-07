@@ -32,7 +32,7 @@ class InvalidArgumentError extends Error {
         super(message || "INVALID_ARGUMENT");
         this.code = grpc.status.INVALID_ARGUMENT;
         this.httpCode = 400;
-        this.details = details || ["Client specified an invalid argument."]
+        this.description = details || ["Client specified an invalid argument."]
     }
 }
 /** HTTP/400 - Request can not be executed in the current system state, such as deleting a non-empty directory. */
@@ -41,7 +41,7 @@ class FailedPreconditionError extends Error {
         super(message || "FAILED_PRECONDITION");
         this.code = grpc.status.FAILED_PRECONDITION;
         this.httpCode = 400;
-        this.details = details || ["Request can not be executed in the current system state."]
+        this.description = details || ["Request can not be executed in the current system state."]
     }
 }
 /** HTTP/400 - Client specified an invalid range. */
@@ -50,7 +50,7 @@ class OutOfRangeError extends Error {
         super(message || "OUT_OF_RANGE");
         this.code = grpc.status.OUT_OF_RANGE;
         this.httpCode = 400;
-        this.details = details || ["Client specified a value out of range."]
+        this.description = details || ["Client specified a value out of range."]
     }
 }
 /** HTTP/401 - Request not authenticated due to missing, invalid, or expired OAuth token. */
@@ -59,7 +59,7 @@ class UnauthenticatedError extends Error {
         super(message || "UNAUTHENTICATED");
         this.code = grpc.status.UNAUTHENTICATED;
         this.httpCode = 401;
-        this.details = details || ["Request not authenticated due to missing/invalid/expired credentials."]
+        this.description = details || ["Request not authenticated due to missing/invalid/expired credentials."]
     }
 }
 /** HTTP/403 - Client does not have sufficient permission. This can happen because the OAuth token does not have the right scopes, the client doesn't have permission, or the API has not been enabled for the client project. */
@@ -68,7 +68,7 @@ class PermissionDeniedError extends Error {
         super(message || "PERMISSION_DENIED");
         this.code = grpc.status.PERMISSION_DENIED;
         this.httpCode = 403;
-        this.details = details || ["Client does not have sufficient permission."]
+        this.description = details || ["Client does not have sufficient permission."]
     }
 }
 /** HTTP/404 - A specified resource is not found, or the request is rejected by undisclosed reasons, such as whitelisting. */
@@ -77,7 +77,7 @@ class NotFoundError extends Error {
         super(message || "NOT_FOUND");
         this.code = grpc.status.NOT_FOUND;
         this.httpCode = 404;
-        this.details = details || ["The specified resource requested was not found."]
+        this.description = details || ["The specified resource requested was not found."]
     }
 }
 /** HTTP/409 - Concurrency conflict, such as read-modify-write conflict. */
@@ -86,7 +86,7 @@ class AbortedError extends Error {
         super(message || "ABORTED");
         this.code = grpc.status.ABORTED;
         this.httpCode = 409;
-        this.details = details || ["The operation was aborted due to a conflicting change."]
+        this.description = details || ["The operation was aborted due to a conflicting change."]
     }
 }
 /** HTTP/409 - The resource that a client tried to create already exists. */
@@ -95,7 +95,7 @@ class AlreadyExistsError extends Error {
         super(message || "ALREADY_EXISTS");
         this.code = grpc.status.ALREADY_EXISTS;
         this.httpCode = 409;
-        this.details = details || ["The resource that the client tried to create already exists."]
+        this.description = details || ["The resource that the client tried to create already exists."]
     }
 }
 /** HTTP/429 - Either out of resource quota or reaching rate limiting. The client should look for google.rpc.QuotaFailure error detail for more information. */
@@ -104,7 +104,7 @@ class ResourceExhaustedError extends Error {
         super(message || "RESOURCE_EXHAUSTED");
         this.code = grpc.status.RESOURCE_EXHAUSTED;
         this.httpCode = 429;
-        this.details = details || ["Exhausted resource quota, please try again."]
+        this.description = details || ["Exhausted resource quota, please try again."]
     }
 }
 /** HTTP/499 - Request cancelled by the client. */
@@ -113,7 +113,7 @@ class CancelledError extends Error {
         super(message || "CANCELLED");
         this.code = grpc.status.CANCELLED;
         this.httpCode = 499;
-        this.details = details || ["Request cancelled by the client."]
+        this.description = details || ["Request cancelled by the client."]
     }
 }
 /** HTTP/500 - Unrecoverable data loss or data corruption. The client should report the error to the user. */
@@ -122,7 +122,7 @@ class DataLossError extends Error {
         super(message || "DATA_LOSS");
         this.code = grpc.status.DATA_LOSS;
         this.httpCode = 500;
-        this.details = details || ["Unrecoverable data loss or data corruption."]
+        this.description = details || ["Unrecoverable data loss or data corruption."]
     }
 }
 /** HTTP/500 - Unknown server error. Typically a server bug. */
@@ -131,7 +131,7 @@ class UnknownError extends Error {
         super(message || "UNKNOWN");
         this.code = grpc.status.UNKNOWN;
         this.httpCode = 500;
-        this.details = details || ["Unknown server error."]
+        this.description = details || ["Unknown server error."]
     }
 }
 /** HTTP/500 - Internal server error. Typically a server bug. */
@@ -140,7 +140,7 @@ class InternalError extends Error {
         super(message || "INTERNAL");
         this.code = grpc.status.INTERNAL;
         this.httpCode = 500;
-        this.details = details || ["Internal server error."]
+        this.description = details || ["Internal server error."]
     }
 }
 /** HTTP/501 - API method not implemented by the server. */
@@ -149,7 +149,7 @@ class UnimplementedError extends Error {
         super(message || "UNIMPLEMENTED");
         this.code = grpc.status.UNIMPLEMENTED;
         this.httpCode = 501;
-        this.details = details || ["API method not implemented by the server."]
+        this.description = details || ["API method not implemented by the server."]
     }
 }
 /** HTTP/503 - Service unavailable. Typically the server is down. */
@@ -158,7 +158,7 @@ class UnavailableError extends Error {
         super(message || "UNAVAILABLE");
         this.code = grpc.status.UNAVAILABLE;
         this.httpCode = 503;
-        this.details = details || ["Service temporarily unavailable."]
+        this.description = details || ["Service temporarily unavailable."]
     }
 }
 /** HTTP/504 - Request deadline exceeded. If it happens repeatedly, consider reducing the request complexity. */
@@ -167,7 +167,7 @@ class DeadlineExceededError extends Error {
         super(message || "DEADLINE_EXCEEDED");
         this.code = grpc.status.DEADLINE_EXCEEDED;
         this.httpCode = 504;
-        this.details = details || ["Request deadline exceeded or request too large."]
+        this.description = details || ["Request deadline exceeded or request too large."]
     }
 }
 
