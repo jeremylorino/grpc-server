@@ -24,6 +24,8 @@
  * Created by vroomlabs on 7/2/17.
  ******************************************************************************/
 
+const fs = require("fs");
+const path = require("path");
 const grpc = require("grpc");
 const pkg = require("../package.json");
 
