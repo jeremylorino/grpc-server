@@ -51,7 +51,7 @@ class GrpcServer extends grpc.Server {
                     if (!fs.existsSync(path.resolve(root, file))) {
                         throw new Error("File not found: " + path.resolve(root, file));
                     }
-                    proto = grpc.load({file: file, root: root}, "proto");
+                    proto = grpc.load({file: file, root: root}, "proto", {convertFieldsToCamelCase:true});
                 }
                 catch (ex) {
                     let error = new Error(`Unable to load "${file}", reason: ${ex.message}`);
