@@ -171,6 +171,9 @@ class DeadlineExceededError extends Error {
     }
 }
 
+/**
+ * NOTE: These names must match the actual class names for GrpcServer to not translate to UnknownError
+ */
 module.exports = {
     /** HTTP/400 - Client specified an invalid argument. Check error message and error details for more information. */
     InvalidArgumentError: InvalidArgumentError,

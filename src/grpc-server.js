@@ -27,6 +27,7 @@
 const fs = require("fs");
 const path = require("path");
 const grpc = require("grpc");
+const grpcErrors = require("./grpc-errors");
 
 /**
  * Provides a GRPC Service that support promises
@@ -188,7 +189,16 @@ function grpcMethod(server, func, name) {
             }
             catch(ex) { server.error(ex); }
 
-            complete(e, arg);
+            // If not a grpc-error, go ahead and make one.
+            if (e && (!e.constructor || !e.constructor.name || !grpcErrors.hasOwnProperty(e.constructor.name))) {
+                let grpcError = new grpcErrors.UnknownError(e.message);
+                ["columnNumber", "fileName", "lineNumber", "name", "stack"]
+                    .forEach(fld => { if (e.hasOwnProperty(fld)) grpcError[fld] = e[fld]; });
+            }
+            try {
+                complete(e, arg);
+            }
+            catch (ex) { server.error(ex); }
         };
 
         try {
