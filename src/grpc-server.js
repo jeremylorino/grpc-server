@@ -83,7 +83,7 @@ class GrpcServer extends grpc.Server {
     // eslint-disable-next-line no-unused-vars
     beforeCall(call) {
         //let requestHeaders = call.metadata.getMap();
-        call.headers["cache-control"] = "public, max-age=0";
+        call.headers["cache-control"] = "no-cache";
     }
 
     /**
