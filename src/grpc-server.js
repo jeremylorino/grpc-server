@@ -27,7 +27,6 @@
 const fs = require("fs");
 const path = require("path");
 const grpc = require("grpc");
-const pkg = require("../package.json");
 
 /**
  * Provides a GRPC Service that support promises
@@ -76,6 +75,39 @@ class GrpcServer extends grpc.Server {
             }
         }
     }
+
+    /**
+     * Replace this method to pre-process all api calls
+     * @param {{request:object,headers:object,methodName:string}} call
+     */
+    // eslint-disable-next-line no-unused-vars
+    beforeCall(call) {
+        //let requestHeaders = call.metadata.getMap();
+        call.headers["cache-control"] = "public, max-age=0";
+    }
+
+    /**
+     * Replace this method to post-process all api calls
+     * @param {{request:object,headers:object,methodName:string}} call
+     * @param {Error} [error]
+     * @param {Object} [result]
+     */
+    // eslint-disable-next-line no-unused-vars
+    afterCall(call, error, result) {
+        if (error) {
+            this.error(error);
+        }
+    }
+
+    /**
+     * Replace this method to handle all errors in the server
+     * @param {Error} error
+     */
+    error(error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+    }
+
     /**
      * Adds a grpc proto service to the server
      * @param {Object} service = results of grpc.load(...)
@@ -86,7 +118,7 @@ class GrpcServer extends grpc.Server {
         if (isGrpcService(service)) {
             service = service.service;
         }
-        return grpc.Server.prototype.addService.apply(this, [service, grpcCall(implementation)]);
+        return grpc.Server.prototype.addService.apply(this, [service, grpcCall(this, implementation)]);
     }
 
     /** @deprecated Use addService instead. */
@@ -119,38 +151,48 @@ function isGrpcService(service) {
 
 /**
  * Allow Promise or immediate return, as well as callback
+ * @param {GrpcServer} server
  * @param obj
  * @returns {*}
  */
-function grpcCall(obj) {
+function grpcCall(server, obj) {
     let mapped = Object.assign({}, obj);
-    Object.keys(obj).forEach(key => { mapped[key] = grpcMethod(mapped[key], key); });
+    Object.keys(obj).forEach(key => { mapped[key] = grpcMethod(server, mapped[key], key); });
     return mapped;
 }
 
 /**
  * defines call.headers and uses method sig
+ * @param {GrpcServer} server
  * @param {function} func Promise|Object function(requestObject, call, callback)
  * @param {string} name - name of the member
  * @returns {Function} function(call, callback) signature
  */
-function grpcMethod(func, name) {
+function grpcMethod(server, func, name) {
     return function(call, complete) {
+        call.methodName = name;
         call.headers = {};
 
         const callback = function(e, arg) {
-            let metadata = new grpc.Metadata();
-            Object.keys(call.headers).forEach(k => {
-                if (typeof call.headers[k] === "string") metadata.set(k, call.headers[k]);
-            });
-            call.sendMetadata(metadata);
+            try {
+                server.afterCall(call, e, arg);
+            }
+            catch(ex) { server.error(ex); }
+
+            try {
+                let metadata = new grpc.Metadata();
+                Object.keys(call.headers).forEach(k => {
+                    if (typeof call.headers[k] === "string") metadata.set(k, call.headers[k]);
+                });
+                call.sendMetadata(metadata);
+            }
+            catch(ex) { server.error(ex); }
+
             complete(e, arg);
         };
 
         try {
-            call.methodName = name;
-            call.headers["cache-control"] = "public, max-age=0";
-            call.headers["version"] = pkg.version;
+            server.beforeCall(call);
 
             let result = func(call.request, call, callback);
             if (typeof result.then === "function") {
