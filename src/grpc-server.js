@@ -194,6 +194,7 @@ function grpcMethod(server, func, name) {
                 let grpcError = new grpcErrors.UnknownError(e.message);
                 ["columnNumber", "fileName", "lineNumber", "name", "stack"]
                     .forEach(fld => { if (e.hasOwnProperty(fld)) grpcError[fld] = e[fld]; });
+                e = grpcError;
             }
             try {
                 complete(e, arg);
