@@ -35,12 +35,20 @@ const grpcErrors = require("./grpc-errors");
 class GrpcServer extends grpc.Server {
     /**
      * Constructs a server and optionally loads and registers the services
-     * @param root - Path to the root of the proto directory
+     * config ex: {root: process.cwd(), 'grpc.max_send_message_length': 10000000, 'grpc.max_receive_message_length': 10000000}
+     * @param config - Path to the root of the proto directory (or server options with {root:string})
      * @param protos - One or more proto files to load
      * @param implementationMap - Service Name [unqualified] to implementation object map
      */
-    constructor(root, protos, implementationMap) {
-        super();
+    constructor(config, protos, implementationMap) {
+        config = config || {};
+        if (typeof config === "string") {
+            config = {root: config};
+        }
+        const root = config.root || path.dirname(path.resolve(process.cwd(), protos[0]));
+        delete config.root;
+
+        super(config);
 
         if (root && protos && implementationMap) {
             let loaded = {};
