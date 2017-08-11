@@ -45,7 +45,7 @@ class GrpcServer extends grpc.Server {
         if (typeof config === "string") {
             config = {root: config};
         }
-        const root = config.root || path.dirname(path.resolve(process.cwd(), protos[0]));
+        const root = config.root || (!protos ? process.cwd() : path.dirname(path.resolve(process.cwd(), protos[0])));
         delete config.root;
 
         super(config);
@@ -214,7 +214,7 @@ function grpcMethod(server, func, name) {
             server.beforeCall(call);
 
             let result = func(call.request, call, callback);
-            if (typeof result.then === "function") {
+            if (result && typeof result.then === "function") {
                 result.then(result => callback(null, result))
                     .catch(error => callback(error));
             }
