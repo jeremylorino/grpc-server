@@ -28,6 +28,7 @@ const fs = require("fs");
 const path = require("path");
 const grpc = require("grpc");
 const grpcErrors = require("./grpc-errors");
+const _ = require('lodash');
 
 /**
  * Provides a GRPC Service that support promises
@@ -52,6 +53,8 @@ class GrpcServer extends grpc.Server {
 
         if (root && protos && implementationMap) {
             let loaded = {};
+            let prunedImplementationMap = {};
+            
             if (!Array.isArray(protos)) protos = [protos];
             protos.forEach(file => {
                 let proto = null;
@@ -67,7 +70,19 @@ class GrpcServer extends grpc.Server {
                     throw error;
                 }
                 try {
-                    loadServicesMap(proto, loaded);
+                    let protoPath = _.toPath(_.filter(getLeaves(proto), (v)=>{
+                        return _.hasIn(implementationMap, v) && isGrpcService(_.get(proto, v));
+                    })[0]);
+                    
+                    if(protoPath.length != 0) {
+                        let protoServiceName = _.takeRight(protoPath, 2).join('.');
+                        
+                        loaded[protoServiceName] = _.get(proto, protoPath);
+                        prunedImplementationMap[protoServiceName] = _.get(implementationMap, protoPath);
+                    } else {
+                        loadServicesMap(proto, loaded);
+                        prunedImplementationMap = implementationMap;
+                    }
                 }
                 catch (ex) {
                     let error = Error(`Unable to locate services in "${file}", reason: ${ex.message}`);
@@ -76,11 +91,11 @@ class GrpcServer extends grpc.Server {
                 }
             });
 
-            let names = Object.keys(implementationMap);
+            let names = Object.keys(prunedImplementationMap);
             for (let ix=0; ix < names.length; ix++) {
                 let name = names[ix];
                 if (!loaded[name]) { throw new Error(`unable to locate "${names[ix]}" in any proto.`); }
-                this.addService(loaded[name], implementationMap[name]);
+                this.addService(loaded[name], prunedImplementationMap[name]);
             }
         }
     }
@@ -127,7 +142,7 @@ class GrpcServer extends grpc.Server {
         if (isGrpcService(service)) {
             service = service.service;
         }
-        return grpc.Server.prototype.addService.apply(this, [service, grpcCall(this, implementation)]);
+        return super.addService(service, grpcCall(this, implementation));
     }
 
     /** @deprecated Use addService instead. */
@@ -140,6 +155,57 @@ class GrpcServer extends grpc.Server {
     get ServerCredentials() {
         return grpc.ServerCredentials;
     }
+}
+
+/**
+ * Walks an object to build a string path of object properties.
+ * 
+ * @param {Object} tree
+ * @return {Array}
+ * 
+ * @example
+ * let obj = {
+ *   com: {
+ *     services: {
+ *       service1: {},
+ *       service2: {
+ *         v1: {
+ *           property1: "value",
+ *         },
+ *         v2: {
+ *           property2: "value",
+ *         }
+ *       }
+ *     }
+ *   }
+ * };
+ * 
+ * let path = getLeaves(obj);
+ * console.log(path);
+ * // [ 'com.services.service1',
+ * //   'com.services.service2.v1.property1',
+ * //   'com.services.service2.v2.property2' ]
+ */
+function getLeaves(tree) {
+    let leaves = [];
+    let walk = function(obj, path) {
+        path = path || "";
+        for (let n in obj) {
+            if (obj.hasOwnProperty(n)) {
+                let newPath = `${path}.${n}`;
+                if(newPath[0] == '.')
+                    newPath = newPath.substr(1);
+                if (typeof obj[n] === "object" || obj[n] instanceof Array) {
+                    walk(obj[n], newPath);
+                }
+                else {
+                    leaves.push(newPath);
+                }
+            }
+        }
+    };
+    walk(tree);
+    return leaves;
 }
 
 /**
@@ -233,7 +299,7 @@ function grpcMethod(server, func, name) {
         catch (ex) {
             callback(ex);
         }
-    }
+    };
 }
 
 module.exports = GrpcServer;
