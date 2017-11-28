@@ -132,6 +132,14 @@ class GrpcServer extends grpc.Server {
 
     /** @deprecated Use addService instead. */
     addProtoService(svc, impl) { return this.addService(svc, impl); }
+    
+    /**
+     * @property
+     * grpc.ServerCredentials object reference
+     */
+    get ServerCredentials() {
+        return grpc.ServerCredentials;
+    }
 }
 
 /**
