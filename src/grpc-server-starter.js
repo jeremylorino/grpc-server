@@ -9,13 +9,13 @@ const GrpcServer = require("./grpc-server");
 module.exports = {
 
     /**
-     * Start the grpc server with provided obj properties
+     * Starts a grpc server with provided obj properties
      * @param {Object} obj - various properties for the grpc server
      * @param {string} obj.googleProjectName - the google project name (for google-cloud logging)
      * @param {string} obj.binding - binding address
      * @param {number} obj.port - port number
      * @param {Object} obj.grpcOptions - map of grpc options e.g. 'grpc.max_send_message_length', 'grpc.max_receive_message_length
-     * @param {Object} obj.httpHeaders - map og http header names and values e.g. 'cache-control' , 'version'
+     * @param {Object} obj.httpHeaders - map of http header names and values e.g. { 'cache-control': 'no-cache' }
      * @param {number} obj.protoFilesRootDir - proto files dir path e.g. path.resolve(__dirname, '../proto')
      * @param {string[]} obj.protoFilenames - names of proto files
      * @param {Object} obj.serviceMappings - map of service name to service libs e.g. { HealthCheck: require('./services/healthCheck')}
