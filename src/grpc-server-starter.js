@@ -6,32 +6,6 @@ const fs = require("fs");
 const errorReporting = require('@google-cloud/error-reporting');
 const GrpcServer = require("./grpc-server");
 
-{
-    googleProjectName: process.env.GCLOUD_PROJECT,
-    binding: (process.env.NODE_BINDIP || '0.0.0.0'),
-    port: (parseInt(process.env.NODE_PORT) || 8080),
-    grpcOptions: {
-        'grpc.max_send_message_length': 52428800,
-        'grpc.max_receive_message_length': 1048576
-    },
-    httpHeaders: {
-        headerCacheControl: 'no-cache',
-        headerVersion: '',
-    },
-    protoFilesRootDir: path.resolve(__dirname, '../proto'),
-    protoFilenames: [
-        'healthCheck.proto',
-        'sampleService.proto',
-        'emmettsService.proto'
-    ],
-    serviceMappings: {
-        HealthCheck: require('./services/healthCheck'),
-        SampleService: require('./services/sampleService'),
-        EmmettsService: require('./services/emmettsService')
-    },
-    loggingIgnoreMethods: ['healthCheck']
-}
-
 module.exports = {
 
     /**
@@ -48,8 +22,6 @@ module.exports = {
      * @param {string[]} obj.loggingIgnoreMethods - method names to exclude logging for e.g. ['healthCheck']
      */
     grpcStart: function(obj) {
-
-        console.log(`obj is ${JSON.stringify(obj)}`)
 
         // satisfy current grpcOptions object
         if (obj.grpcOptions) {
