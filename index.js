@@ -25,10 +25,13 @@
  ******************************************************************************/
 
 const GrpcServer = require("./src/grpc-server");
+const GrpcServerStarter = require("./src/grpc-server-starter");
 const GrpcErrors = require("./src/grpc-errors");
 
 module.exports = {
     GrpcServer: GrpcServer,
+    /** Adaptor for backwards compatibility */
+    grpcStart: GrpcServerStarter.grpcStart,
     /** HTTP/400 - Client specified an invalid argument. Check error message and error details for more information. */
     InvalidArgumentError: GrpcErrors.InvalidArgumentError,
     /** HTTP/400 - Request can not be executed in the current system state, such as deleting a non-empty directory. */
