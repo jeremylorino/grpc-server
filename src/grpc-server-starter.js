@@ -48,7 +48,7 @@ module.exports = {
                         })
                         .catch((error) => {
                             let errorMessage = (typeof error === 'object') ? JSON.stringify(error) : error
-                            console.error(errorMessage)
+                            server.error(errorMessage)
                             throw new grpcErrors.InternalError(errorMessage);
 
                         })
