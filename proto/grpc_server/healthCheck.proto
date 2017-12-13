@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package grpc_server;
+import "google/api/annotations.proto";
+
+////////////////////////////////////////////////////////////////////////////////
+// API entry point
+service HealthCheck {
+    // Returns an object.
+    rpc HealthCheck(HealthCheckRequest) returns (HealthCheckReply) {
+        option (google.api.http) = { get: "/_ah/health" };
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+message HealthCheckRequest {
+    // When set to true, the method may fail without restarting the container
+    //
+    bool isReady = 1;
+}
+
+message HealthCheckReply {
+    bool alive = 1;
+    double uptime = 2;
+    string version = 3;
+
+    map<string, string> details = 63;
+}
+
+////////////////////////////////////////////////////////////////////////////////

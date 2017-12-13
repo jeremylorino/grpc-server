@@ -5,6 +5,8 @@ const path = require("path");
 const fs = require("fs");
 const errorReporting = require('@google-cloud/error-reporting');
 const GrpcServer = require("./grpc-server");
+const grpcErrors = require("./grpc-errors");
+const HealthCheck = require('./healthCheck')
 
 module.exports = {
 
@@ -27,6 +29,36 @@ module.exports = {
         if (obj.grpcOptions) {
             obj.grpcOptions.root = obj.protoFilesRootDir
         }
+
+
+        obj.protoFilenames.push('grpc_server/healthCheck.proto')
+
+        //override health check
+
+        if (obj.healthCheck) {
+
+            obj.serviceMappings['HealthCheck'] = {
+
+                healthCheck: function(request, call) {
+
+                    return obj.healthCheck(request, call).then((result) => {
+
+                            return Promise.resolve(HealthCheck.healthCheck(request, call))
+
+                        })
+                        .catch((error) => {
+                            let errorMessage = (typeof error === 'object') ? JSON.stringify(error) : error
+                            console.error(errorMessage)
+                            throw new grpcErrors.InternalError(errorMessage);
+
+                        })
+                }
+
+            }
+        } else {
+            obj.serviceMappings['HealthCheck'] = HealthCheck
+        }
+
 
         //create server
         let server = new GrpcServer(obj.grpcOptions, obj.protoFilenames, obj.serviceMappings);
@@ -82,11 +114,10 @@ module.exports = {
             }
         }
 
-
-
         //bind and start the server
         server.bind(`${obj.binding}:${obj.port}`, grpc.ServerCredentials.createInsecure());
         server.start();
 
+        console.log(`Server running at ${obj.binding}:${obj.port}`)
     }
 }
