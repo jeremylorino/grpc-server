@@ -11,7 +11,7 @@ const HealthCheck = require('./healthCheck')
 module.exports = {
 
     /**
-     * Starts a grpc server with provided obj properties
+     * Starts the grpc server with provided obj properties
      * @param {Object} obj - various properties for the grpc server
      * @param {string} obj.googleProjectName - the google project name (for google-cloud logging)
      * @param {string} obj.binding - binding address
