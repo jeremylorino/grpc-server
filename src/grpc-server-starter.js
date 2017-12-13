@@ -47,8 +47,19 @@ module.exports = {
 
                         })
                         .catch((error) => {
-                            let errorMessage = (typeof error === 'object') ? JSON.stringify(error) : error
+                            let errorMessage = 'An error occurred in the healthCheck';
+
+                            if(error){
+                              if(error instanceof Error){
+                                errorMessage = error.message;
+                              }else{
+                                errorMessage = (typeof error === 'object')? JSON.stringify(error) : error;
+                              }
+
+                            }
+
                             server.error(errorMessage)
+
                             throw new grpcErrors.InternalError(errorMessage);
 
                         })
