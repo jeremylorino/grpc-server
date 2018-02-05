@@ -1,6 +1,6 @@
 {
   "name": "@vroomlabs/grpc-server",
-  "version": "1.0.13",
+  "version": "1.0.15",
   "description": "Google GRPC Server implementation",
   "author": "vroomlabs",
   "homepage": "https://github.com/vroomlabs/grpc-server#readme",
